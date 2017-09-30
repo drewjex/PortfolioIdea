@@ -1,0 +1,151 @@
+<html>
+  <head>
+    <!-- <script type='text/javascript' src='script.js' />
+    <link rel='stylesheet' href='style.css' /> -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300" rel="stylesheet">
+  </head>
+  <body>
+    <style>
+      :root {
+        --black: #050a1e;
+        --gray: #aaacaf;
+        --border: #2762c1;
+        --dark-blue: #0f224d;
+        --db: #10214c;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0 auto;
+        text-align: center;
+        font-family: 'Raleway', sans-serif; 
+        background: linear-gradient(to bottom, var(--black) 0%, var(--dark-blue) 50%, var(--db) 100%);
+      }
+
+      .message {
+        margin-top:100px;
+        display: inline-block;
+        font-size:46px;
+        color:white;
+      }
+
+      .container {
+        top:30%;
+        width: 100%;
+        position: absolute;
+        perspective: 1000px;
+        perspective-origin: top;
+        animation: fadeIn both .5s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(2.2, 2.2) translateY(20px) translateZ(500px);
+        } to {
+          opacity: 1;
+        }
+      }
+
+      .card {
+        padding: 5px;
+        width:400px;
+        height:200px;
+        position: absolute;
+        background: #fff;
+        transition: all ease-in 0.5s;
+        /* transform: translate3d(0,0,-100px); */
+        box-shadow: 0 1px 10px 0 rgba(0,0,0,0.6);
+      }
+    </style>
+
+    <div class='message'>
+      Drew Jex
+    </div>
+
+    <div class='container'>
+        <div class='card' data-order='1'>Example 1</div>
+        <div class='card' data-order='2'>Example 2</div>
+        <div class='card' data-order='3'>Example 3</div>
+        <div class='card' data-order='4'>Example 4</div>
+        <div class='card' data-order='5'>Example 5</div>
+    </div>
+
+    <script>
+
+      const cards = Array.from(document.querySelectorAll('.card'));
+      const numCards = cards.length;
+      const middle = Math.ceil(numCards/2);
+      let selectedCardIndex = 2;
+      let count = 1;
+      let perspectiveValue = 1000;
+
+      //probably don't even need data-order!!
+
+      let keyDown = false;
+
+      cards.forEach(card => {
+        let scaleFactor = numCards - Math.abs(middle-count);
+        card.style.left = `${(card.dataset.order*100)+(window.innerWidth/numCards)}px`;
+        card.style.transform = `translateZ(${scaleFactor*100}px)`;
+        card.style.zIndex = `${scaleFactor}`;
+        count++;
+      });
+
+      function changePerspective(e) {
+        if (keyDown)
+          return;
+
+        if (e.keyCode == 37) {
+          // const container = document.querySelector('.container');
+          // perspectiveValue += 25;
+          // container.style.perspective = `${perspectiveValue}px`;
+          for (let i=0; i<selectedCardIndex; i++) {
+            cards[i].style.zIndex = `${parseInt(cards[i].style.zIndex)+1}`;
+            cards[i].style.left = `${parseInt(cards[i].style.left)+100}px`;
+            cards[i].style.transform = `translateZ(${parseInt(cards[i].style.transform.replace(/[^0-9.]/g, ''))+100}px)`;
+          }
+          for (let i=selectedCardIndex; i<numCards; i++) {
+            cards[i].style.zIndex = `${parseInt(cards[i].style.zIndex)-1}`;
+            cards[i].style.left = `${parseInt(cards[i].style.left)+100}px`;
+            cards[i].style.transform = `translateZ(${parseInt(cards[i].style.transform.replace(/[^0-9.]/g, ''))-100}px)`;
+          }
+
+          selectedCardIndex--;
+
+        } else if (e.keyCode == 39) {
+          // const container = document.querySelector('.container');
+          // perspectiveValue -= 25;
+          // container.style.perspective = `${perspectiveValue}px`;
+
+          selectedCardIndex++;
+          for (let i=0; i<selectedCardIndex; i++) {
+            cards[i].style.zIndex = `${parseInt(cards[i].style.zIndex)-1}`;
+            cards[i].style.left = `${parseInt(cards[i].style.left)-100}px`;
+            cards[i].style.transform = `translateZ(${parseInt(cards[i].style.transform.replace(/[^0-9.]/g, ''))-100}px)`;
+          }
+          for (let i=selectedCardIndex; i<numCards; i++) {
+            cards[i].style.zIndex = `${parseInt(cards[i].style.zIndex)+1}`;
+            cards[i].style.left = `${parseInt(cards[i].style.left)-100}px`;
+            cards[i].style.transform = `translateZ(${parseInt(cards[i].style.transform.replace(/[^0-9.]/g, ''))+100}px)`;
+          }
+        }
+
+        keyDown = true;
+      }
+
+      function finishTransition(e) {
+        if (e.propertyName !== 'transform') return;
+        console.log(e);
+      }
+
+      window.addEventListener('keydown', changePerspective);
+      window.addEventListener('keyup', () => keyDown = false);
+      cards.forEach(card => card.addEventListener('transitionend', finishTransition));
+    
+    </script>
+  </body>
+</html>
